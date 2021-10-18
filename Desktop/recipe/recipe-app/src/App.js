@@ -2,20 +2,25 @@ import './App.css';
 import Recipe from './Recipe';
 import { useState , useEffect} from 'react';
 import {Button, FormControl, InputLabel, Input} from '@mui/material';
-import db from './firebase.js';
+import db from './firebase';
+import firebase from 'firebase';
 
 function App() {
   const [recipes, setRecipes] = useState(['hello','hi']);
   const [input, setInput] = useState('');
 
   useEffect(() => {
-    db.collection('recipes').onSnapshot(snapshot => {
+    db.collection('recipes').orderBy('timestamp','desc').onSnapshot(snapshot => {
       setRecipes(snapshot.docs.map(doc => doc.data().recipe))
     })
   }, []);
 
   const addRecipeTitle = (event) => {
     event.preventDefault();
+    db.collection('recipes').add({
+      recipe: input,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    })
     // alert('Added Title');
     setRecipes([...recipes, input]);
     setInput('');
